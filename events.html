@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Alan+Sans:wght@300..900&family=Asul:wght@400;700&display=swap" rel="stylesheet">
+    <title>Interactive Blooming Flower</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body, html { 
+            margin: 0; 
+            padding: 0; 
+            height: 100%; 
+            width: 100%; 
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Asul', serif;
+        }
+
+        /* --- FULL SCREEN BACKGROUND CONTAINER --- */
+        .main {
+            width: 100vw;
+            min-height: 100vh;
+            background-image: url('enback.png'); 
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 70px 20px 40px 20px; /* Top padding accommodates fixed navbar */
+        }
+
+        /* --- NAVBAR (REPLICATED FROM HOME PAGE) --- */
+        .navbar {
+            position: fixed;
+            top: 10px;
+            left: 0;
+            width: 100%;
+           background-color: rgb(65, 30, 96, 54%);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            padding: 0 10px;
+        }
+
+        .navbar ul {
+            list-style: none;
+            margin: 0;
+            padding: 12px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            max-width: 100%;
+            flex-wrap: nowrap;
+        }
+
+        .navbar li a {
+            color: #f4e8ff;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            padding: 6px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .navbar li a:hover {
+            background-color: rgba(155, 76, 133, 0.8);
+            color: #ffffff;
+        }
+
+        @media (min-width: 480px) {
+            .navbar ul { gap: 20px; }
+            .navbar li a { font-size: 0.95rem; padding: 6px 12px; letter-spacing: 1px; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="events.html">Event</a></li>
+            <li><a href="#gallery">Gallery</a></li>
+            <li><a href="#guestbook">Guestbook</a></li>
+        </ul>
+    </nav>
+
+    <div id="home" class="main">
+        <!-- Main full-screen content goes here -->
+    </div>
+
+</body>
+</html>
