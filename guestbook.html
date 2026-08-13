@@ -182,6 +182,46 @@
             white-space: pre-wrap;
         }
 
+        /* --- DELETE CONFIRMATION MODAL STYLES --- */
+        .delete-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+            justify-content: center;
+        }
+
+        .confirm-delete-btn {
+            background-color: #d9534f;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 6px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .confirm-delete-btn:hover {
+            background-color: #c9302c;
+        }
+
+        .cancel-delete-btn {
+            background-color: #e2e2e2;
+            color: #333;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 6px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .cancel-delete-btn:hover {
+            background-color: #d0d0d0;
+        }
+
         /* --- GUESTBOOK CARDS GRID (FIXED 3 IN A ROW) --- */
         .cards-container {
             display: grid;
@@ -281,55 +321,6 @@
             letter-spacing: 0.5px;
             text-transform: uppercase;
         }
-
-        .delete-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(180, 40, 40, 0.92);
-            color: #ffffff;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-            z-index: 10;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.2s ease;
-            border-radius: 4px 10px 10px 4px;
-            font-size: 12px;
-        }
-
-        .book-card.show-delete .delete-overlay {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .delete-btn {
-            background-color: #ffffff;
-            color: #d9534f;
-            border: none;
-            padding: 6px 14px;
-            border-radius: 15px;
-            font-weight: bold;
-            font-size: 12px;
-            font-family: 'Montserrat', sans-serif;
-            cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-
-        .cancel-delete-btn {
-            background: transparent;
-            color: #ffffff;
-            border: 1px solid #ffffff;
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-size: 11px;
-            cursor: pointer;
-        }
     </style>
 </head>
 <body>
@@ -379,6 +370,18 @@
         </div>
     </div>
 
+    <!-- Delete Confirmation Modal -->
+    <div class="modal-overlay" id="deleteModalOverlay">
+        <div class="modal-card">
+            <h2 style="font-size: 20px;">Delete Message?</h2>
+            <p id="deleteConfirmText" style="text-align: center; color: #555; margin-top: 15px; font-size: 14px;">Do you want to delete this message?</p>
+            <div class="delete-actions">
+                <button class="confirm-delete-btn" id="confirmDeleteBtn">Yes, Delete</button>
+                <button class="cancel-delete-btn" id="closeDeleteModalBtn">No</button>
+            </div>
+        </div>
+    </div>
+
     <!-- FIREBASE SDK INCLUSIONS -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -400,6 +403,9 @@
         const db = getFirestore(app);
         const guestbookRef = collection(db, "guestbook");
 
+        // Global variable to store current document ID to delete
+        let pendingDeleteDocId = null;
+
         // DOM Elements
         const openModalBtn = document.getElementById('openModalBtn');
         const closeModalBtn = document.getElementById('closeModalBtn');
@@ -412,14 +418,26 @@
         const modalAuthorTitle = document.getElementById('modalAuthorTitle');
         const modalMessageBody = document.getElementById('modalMessageBody');
 
+        const deleteModalOverlay = document.getElementById('deleteModalOverlay');
+        const deleteConfirmText = document.getElementById('deleteConfirmText');
+        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+        const closeDeleteModalBtn = document.getElementById('closeDeleteModalBtn');
+
         // Modal Controls
         openModalBtn.addEventListener('click', () => modalOverlay.classList.add('active'));
         closeModalBtn.addEventListener('click', () => modalOverlay.classList.remove('active'));
         closeViewModalBtn.addEventListener('click', () => viewModalOverlay.classList.remove('active'));
+        closeDeleteModalBtn.addEventListener('click', () => {
+            deleteModalOverlay.classList.remove('active');
+            pendingDeleteDocId = null;
+        });
 
-        [modalOverlay, viewModalOverlay].forEach(overlay => {
+        [modalOverlay, viewModalOverlay, deleteModalOverlay].forEach(overlay => {
             overlay.addEventListener('click', (e) => {
-                if (e.target === overlay) overlay.classList.remove('active');
+                if (e.target === overlay) {
+                    overlay.classList.remove('active');
+                    pendingDeleteDocId = null;
+                }
             });
         });
 
@@ -443,6 +461,19 @@
             }
         });
 
+        // Confirm Delete Action
+        confirmDeleteBtn.addEventListener('click', async () => {
+            if (pendingDeleteDocId) {
+                try {
+                    await deleteDoc(doc(db, "guestbook", pendingDeleteDocId));
+                    deleteModalOverlay.classList.remove('active');
+                    pendingDeleteDocId = null;
+                } catch (err) {
+                    console.error("Error deleting message:", err);
+                }
+            }
+        });
+
         // Real-time listener: Syncs database with DOM seamlessly
         const q = query(guestbookRef, orderBy("createdAt", "desc"));
         onSnapshot(q, (snapshot) => {
@@ -463,24 +494,18 @@
                     <h3>${name}</h3>
                     <p>Tap to Open</p>
                 </div>
-                <div class="delete-overlay">
-                    <span>Delete wish?</span>
-                    <button class="delete-btn">Delete</button>
-                    <button class="cancel-delete-btn">Cancel</button>
-                </div>
             `;
 
             let pressTimer = null;
-            let isLongPress = false;
+            let longPressTriggered = false;
 
-            const startPress = (e) => {
-                // Ignore long press start if clicking inside the delete overlay
-                if (e.target.closest('.delete-overlay')) return;
-
-                isLongPress = false;
+            const startPress = () => {
+                longPressTriggered = false;
                 pressTimer = setTimeout(() => {
-                    isLongPress = true;
-                    card.classList.add('show-delete');
+                    longPressTriggered = true;
+                    pendingDeleteDocId = docId;
+                    deleteConfirmText.textContent = `Do you want to delete ${name}'s message?`;
+                    deleteModalOverlay.classList.add('active');
                 }, 600);
             };
 
@@ -498,29 +523,12 @@
             card.addEventListener('mouseup', cancelPress);
             card.addEventListener('mouseleave', cancelPress);
 
-            // Click Handler
-            card.addEventListener('click', async (e) => {
-                // If it was a long press that triggered the overlay, reset flag and stop
-                if (isLongPress) {
-                    isLongPress = false;
+            // Click Handler for standard tap
+            card.addEventListener('click', () => {
+                if (longPressTriggered) {
+                    longPressTriggered = false;
                     return;
                 }
-
-                // If delete overlay is visible, process button actions
-                if (card.classList.contains('show-delete')) {
-                    if (e.target.classList.contains('delete-btn')) {
-                        try {
-                            await deleteDoc(doc(db, "guestbook", docId));
-                        } catch (err) {
-                            console.error("Error deleting wish:", err);
-                        }
-                    } else if (e.target.classList.contains('cancel-delete-btn')) {
-                        card.classList.remove('show-delete');
-                    }
-                    return;
-                }
-
-                // Regular tap: Open message view
                 modalAuthorTitle.textContent = `${name}'s Wish`;
                 modalMessageBody.textContent = message;
                 viewModalOverlay.classList.add('active');
