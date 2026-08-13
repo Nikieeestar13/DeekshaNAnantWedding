@@ -8,7 +8,7 @@
     <!-- Loaded Cinzel (for luxury serif headings) & Montserrat (for tracked subtext) -->
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Alan+Sans:wght@300..900&family=Asul:wght@400;700&display=swap" rel="stylesheet">
-	 <link rel="stylesheet" href="navbar.css">
+    <link rel="stylesheet" href="navbar.css">
     <title>Interactive Blooming Flower</title>
     <style>
         * {
@@ -19,8 +19,9 @@
             margin: 0; 
             padding: 0; 
             height: 100%; 
+            height: 100dvh; /* Dynamic viewport height handles mobile browsers better */
             width: 100%; 
-            overflow-x: hidden;
+            overflow: hidden; /* Disables all page scrolling */
             -webkit-tap-highlight-color: transparent;
             font-family: 'Cinzel', serif;
         }
@@ -28,20 +29,19 @@
         /* --- FULL SCREEN BACKGROUND CONTAINER --- */
         .main {
             width: 100vw;
-            min-height: 100vh;
+            height: 100%;
+            height: 100dvh;
             background-image: url('enback.png'); 
             background-position: center center;
             background-repeat: no-repeat;
             background-size: cover;
-            background-attachment: fixed; /* Keeps background static while scrolling */
             display: flex;
             flex-direction: column;
             justify-content: space-evenly;
             align-items: center;
-            padding: 80px 20px 40px 20px;
+            padding: 60px 20px 20px 20px; /* Reduced top padding slightly to prevent overflow */
+            overflow: hidden;
         }
-
-       
 
         /* --- SUBTITLE INSTRUCTION TEXT --- */
         .instruction-text {
@@ -51,8 +51,8 @@
             color: #b38744;
             letter-spacing: 2px;
             text-transform: uppercase;
-            margin-top: 10px;
-            margin-bottom: 10px;
+            margin-top: 5px;
+            margin-bottom: 5px;
             text-align: center;
         }
         
@@ -60,12 +60,11 @@
         .card {
             width: 90%;
             max-width: 450px;
-            height: 110px;
+            height: 100px;
             background: linear-gradient(135deg, rgba(255, 252, 245, 0.82), rgba(255, 248, 238, 0.65));
             backdrop-filter: blur(6px);
             -webkit-backdrop-filter: blur(6px);
             border-radius: 16px;
-            margin-top: 18px;
             border: 1px solid #e6c896;
             box-shadow: 0 6px 20px rgba(75, 29, 82, 0.08);
             display: flex;
@@ -88,8 +87,8 @@
 
         /* Illustration image inside card */
         .card img {
-            width: 100px;
-            height: 100px;
+            width: 80px;
+            height: 80px;
             object-fit: contain;
             flex-shrink: 0;
         }
@@ -104,8 +103,8 @@
         /* Date Styling */
         .card-content h3 {
             font-family: 'Montserrat', sans-serif;
-            margin: 0 0 6px 0;
-            font-size: 0.85rem;
+            margin: 0 0 4px 0;
+            font-size: 0.8rem;
             font-weight: 500;
             letter-spacing: 2px;
             color: #1a1a1a;
@@ -116,7 +115,7 @@
         .card-content p {
             font-family: 'Cinzel', serif;
             margin: 0;
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: 700;
             color: #4b1d52;
             letter-spacing: 1.5px;
@@ -151,7 +150,7 @@
 
         .modal-card {
             background: linear-gradient(135deg, rgba(255, 253, 248, 0.98), rgba(255, 246, 235, 0.95));
-            border: 1px solid #e6c896;
+            border: 3px solid #d3942b;
             border-radius: 20px;
             width: 90%;
             max-width: 420px;
@@ -250,8 +249,8 @@
 
     <nav class="navbar">
         <ul>
-            <li><a href="https://nikieeestar13.github.io/DeekshaNAnantWedding/index.html">Home</a></li>
-            <li><a href="https://nikieeestar13.github.io/DeekshaNAnantWedding/events.html">Event</a></li>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="events.html">Event</a></li>
             <li><a href="#gallery">Gallery</a></li>
             <li><a href="#guestbook">Guestbook</a></li>
         </ul>
@@ -259,7 +258,7 @@
 
     <div id="home" class="main">
         <!-- Events Header Image -->
-        <img src="eventstext.png" style="width: 55%; max-width: 250px;" alt="EVENTS">
+        <img src="eventstext.png" style="width: 50%; max-width: 220px;" alt="EVENTS">
 
         <!-- Card 1: Engagement -->
         <div class="card" data-event="engagement">
