@@ -385,17 +385,15 @@
         import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp } 
         from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // ⚠️ REPLACE THIS WITH YOUR OWN FIREBASE CONFIG KEYS ⚠️
         const firebaseConfig = {
-		  apiKey: "AIzaSyCWPng2_1o-ZlxazpYfRcZZtMXGnLh509A",
-		  authDomain: "dawedding-938da.firebaseapp.com",
-		  projectId: "dawedding-938da",
-		  storageBucket: "dawedding-938da.firebasestorage.app",
-		  messagingSenderId: "980547601139",
-		  appId: "1:980547601139:web:e556c96be0c7a47b0f2d86",
-		  measurementId: "G-RZ49KWR6HL"
-		};
-
+            apiKey: "AIzaSyCWPng2_1o-ZlxazpYfRcZZtMXGnLh509A",
+            authDomain: "dawedding-938da.firebaseapp.com",
+            projectId: "dawedding-938da",
+            storageBucket: "dawedding-938da.firebasestorage.app",
+            messagingSenderId: "980547601139",
+            appId: "1:980547601139:web:e556c96be0c7a47b0f2d86",
+            measurementId: "G-RZ49KWR6HL"
+        };
 
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
@@ -476,7 +474,9 @@
             let isLongPress = false;
 
             const startPress = (e) => {
-                if (e.target.classList.contains('delete-btn') || e.target.classList.contains('cancel-delete-btn')) return;
+                // Ignore long press start if clicking inside the delete overlay
+                if (e.target.closest('.delete-overlay')) return;
+
                 isLongPress = false;
                 pressTimer = setTimeout(() => {
                     isLongPress = true;
@@ -484,32 +484,43 @@
                 }, 600);
             };
 
-            const cancelPress = () => clearTimeout(pressTimer);
+            const cancelPress = () => {
+                if (pressTimer) clearTimeout(pressTimer);
+            };
 
+            // Touch events
             card.addEventListener('touchstart', startPress, { passive: true });
             card.addEventListener('touchend', cancelPress);
             card.addEventListener('touchmove', cancelPress);
 
+            // Mouse events
             card.addEventListener('mousedown', startPress);
             card.addEventListener('mouseup', cancelPress);
             card.addEventListener('mouseleave', cancelPress);
 
+            // Click Handler
             card.addEventListener('click', async (e) => {
+                // If it was a long press that triggered the overlay, reset flag and stop
                 if (isLongPress) {
-                    e.stopPropagation();
+                    isLongPress = false;
                     return;
                 }
 
+                // If delete overlay is visible, process button actions
                 if (card.classList.contains('show-delete')) {
                     if (e.target.classList.contains('delete-btn')) {
-                        // Delete from Firebase Cloud
-                        await deleteDoc(doc(db, "guestbook", docId));
+                        try {
+                            await deleteDoc(doc(db, "guestbook", docId));
+                        } catch (err) {
+                            console.error("Error deleting wish:", err);
+                        }
                     } else if (e.target.classList.contains('cancel-delete-btn')) {
                         card.classList.remove('show-delete');
                     }
                     return;
                 }
 
+                // Regular tap: Open message view
                 modalAuthorTitle.textContent = `${name}'s Wish`;
                 modalMessageBody.textContent = message;
                 viewModalOverlay.classList.add('active');
