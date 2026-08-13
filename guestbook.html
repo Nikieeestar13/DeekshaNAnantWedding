@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Loaded Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Alan+Sans:wght@300..900&family=Asul:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="navbar.css">
+    <title>Interactive Guestbook</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body, html { 
+            margin: 0; 
+            padding: 0; 
+            width: 100%; 
+            min-height: 100vh;
+            min-height: 100dvh;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Cinzel', serif;
+        }
+
+        /* --- FULL SCREEN BACKGROUND CONTAINER --- */
+        .main {
+            width: 100vw;
+            min-height: 100vh;
+            min-height: 100dvh;
+            background-image: url('enback.png'); 
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-attachment: fixed;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 80px 20px 100px 20px;
+            position: relative;
+        }
+
+        /* --- FLOATING PLUS BUTTON --- */
+        .fab-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: #d4af37; /* Metallic Gold */
+            color: #ffffff;
+            border: none;
+            font-size: 36px;
+            line-height: 60px;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
+            z-index: 100;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+
+        .fab-btn:hover {
+            transform: scale(1.1);
+            background-color: #b89628;
+        }
+
+        /* --- COMMON MODAL OVERLAY --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-card {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 450px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            position: relative;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .modal-card h2 {
+            font-family: 'Cinzel', serif;
+            margin-top: 0;
+            color: #333;
+            text-align: center;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            line-height: 1;
+        }
+
+        /* --- FORM STYLES --- */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .form-group input, 
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            height: 100px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #d4af37;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-family: 'Cinzel', serif;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .submit-btn:hover {
+            background-color: #b89628;
+        }
+
+        /* --- VIEW MESSAGE MODAL STYLES --- */
+        .message-modal-content {
+            background: #fdfbf7;
+            border: 2px solid #d4af37;
+        }
+
+        .message-modal-body {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 8px;
+            line-height: 1.6;
+            color: #444;
+            white-space: pre-wrap;
+        }
+
+        /* --- GUESTBOOK CARDS GRID (FIXED 3 IN A ROW) --- */
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr)); /* Exactly 3 columns */
+            gap: 20px;
+            width: 100%;
+            max-width: 900px; /* Constrains total layout so books don't stretch fullscreen */
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        @media (max-width: 600px) {
+            .cards-container {
+                gap: 10px; /* Slightly tighter spacing on smaller mobile screens */
+            }
+        }
+
+        /* --- PURPLE FOLDED BOOK CARD STYLES --- */
+        .book-card {
+            position: relative;
+            width: 100%;
+            height: 150px; /* Fixed height for compact book proportion */
+            background: linear-gradient(135deg, #4a154b 0%, #2e0c30 100%); /* Deep Purple Cover */
+            border-radius: 4px 10px 10px 4px;
+            box-shadow: 4px 6px 12px rgba(0, 0, 0, 0.4);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 12px 12px 25px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            user-select: none;
+            -webkit-user-select: none;
+            overflow: hidden;
+        }
+
+        .book-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 6px 10px 18px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Spine / Fold line on the left */
+        .book-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 16px;
+            background: linear-gradient(to right, rgba(0,0,0,0.5), rgba(0,0,0,0.1) 80%, rgba(255,255,255,0.15));
+            border-right: 2px solid rgba(212, 175, 55, 0.6); /* Gold Spine Accent */
+        }
+
+        /* Paper Pages Edge Effect on Right */
+        .book-card::after {
+            content: '';
+            position: absolute;
+            right: 3px;
+            top: 5px;
+            bottom: 5px;
+            width: 5px;
+            background: repeating-linear-gradient(
+                to bottom,
+                #fff,
+                #fff 2px,
+                #ddd 3px,
+                #ddd 4px
+            );
+            border-radius: 0 2px 2px 0;
+        }
+
+        /* Book Cover Label */
+        .book-cover-content {
+            border: 1px dashed #d4af37;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 8px;
+            text-align: center;
+            border-radius: 3px;
+            pointer-events: none;
+        }
+
+        .book-cover-content h3 {
+            margin: 0;
+            font-family: 'Cinzel', serif;
+            font-size: 15px;
+            color: #d4af37; /* Metallic Gold Text */
+            word-break: break-word;
+        }
+
+        .book-cover-content p {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 10px;
+            color: #e0e0e0;
+            margin-top: 6px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        /* Delete Overlay (Revealed on Long Press) */
+        .delete-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(180, 40, 40, 0.92);
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            z-index: 10;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+            border-radius: 4px 10px 10px 4px;
+            font-size: 12px;
+        }
+
+        .book-card.show-delete .delete-overlay {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .delete-btn {
+            background-color: #ffffff;
+            color: #d9534f;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 12px;
+            font-family: 'Montserrat', sans-serif;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .cancel-delete-btn {
+            background: transparent;
+            color: #ffffff;
+            border: 1px solid #ffffff;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="events.html"><u>Event</u></a></li>
+            <li><a href="#gallery">Gallery</a></li>
+            <li><a href="#guestbook">Guestbook</a></li>
+        </ul>
+    </nav>
+
+    <div id="home" class="main">
+        <h1 style="color: #ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">Guestbook</h1>
+        
+        <!-- Container for dynamically added card notes (Strictly 3 per row) -->
+        <div class="cards-container" id="cardsContainer"></div>
+    </div>
+
+    <!-- Floating Plus Sign Button -->
+    <button class="fab-btn" id="openModalBtn" aria-label="Add Wish">+</button>
+
+    <!-- Create Message Modal Form -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-card">
+            <button class="close-btn" id="closeModalBtn">&times;</button>
+            <h2>Leave a Message</h2>
+            <form id="guestbookForm">
+                <div class="form-group">
+                    <label for="guestName">Your Name</label>
+                    <input type="text" id="guestName" placeholder="e.g., Jane Doe" required>
+                </div>
+                <div class="form-group">
+                    <label for="guestMessage">Your Message</label>
+                    <textarea id="guestMessage" placeholder="Write your warm wishes for the couple..." required></textarea>
+                </div>
+                <button type="submit" class="submit-btn">Submit Message</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Read Message Modal -->
+    <div class="modal-overlay" id="viewModalOverlay">
+        <div class="modal-card message-modal-content">
+            <button class="close-btn" id="closeViewModalBtn">&times;</button>
+            <h2 id="modalAuthorTitle">Guest's Wish</h2>
+            <div class="message-modal-body" id="modalMessageBody">
+                <!-- Message content injected here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const openModalBtn = document.getElementById('openModalBtn');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const modalOverlay = document.getElementById('modalOverlay');
+        const guestbookForm = document.getElementById('guestbookForm');
+        const cardsContainer = document.getElementById('cardsContainer');
+
+        const viewModalOverlay = document.getElementById('viewModalOverlay');
+        const closeViewModalBtn = document.getElementById('closeViewModalBtn');
+        const modalAuthorTitle = document.getElementById('modalAuthorTitle');
+        const modalMessageBody = document.getElementById('modalMessageBody');
+
+        // Open Add Modal
+        openModalBtn.addEventListener('click', () => {
+            modalOverlay.classList.add('active');
+        });
+
+        // Close Add Modal
+        closeModalBtn.addEventListener('click', () => {
+            modalOverlay.classList.remove('active');
+        });
+
+        // Close Read Modal
+        closeViewModalBtn.addEventListener('click', () => {
+            viewModalOverlay.classList.remove('active');
+        });
+
+        // Close Modals when clicking outside content
+        [modalOverlay, viewModalOverlay].forEach(overlay => {
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    overlay.classList.remove('active');
+                }
+            });
+        });
+
+        // Form Submit Handler
+        guestbookForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const name = document.getElementById('guestName').value;
+            const message = document.getElementById('guestMessage').value;
+
+            createBookCard(name, message);
+
+            // Reset and close form modal
+            guestbookForm.reset();
+            modalOverlay.classList.remove('active');
+        });
+
+        // Function to create a folded book card
+        function createBookCard(name, message) {
+            const card = document.createElement('div');
+            card.classList.add('book-card');
+
+            card.innerHTML = `
+                <div class="book-cover-content">
+                    <h3>${name}</h3>
+                    <p>Tap to Open</p>
+                </div>
+                <div class="delete-overlay">
+                    <span>Delete wish?</span>
+                    <button class="delete-btn">Delete</button>
+                    <button class="cancel-delete-btn">Cancel</button>
+                </div>
+            `;
+
+            // Long Press Logic Variables
+            let pressTimer = null;
+            let isLongPress = false;
+
+            const startPress = (e) => {
+                if (e.target.classList.contains('delete-btn') || e.target.classList.contains('cancel-delete-btn')) {
+                    return;
+                }
+                isLongPress = false;
+                pressTimer = setTimeout(() => {
+                    isLongPress = true;
+                    card.classList.add('show-delete');
+                }, 600); // 600ms threshold for long press
+            };
+
+            const cancelPress = () => {
+                clearTimeout(pressTimer);
+            };
+
+            // Touch events for mobile
+            card.addEventListener('touchstart', startPress, { passive: true });
+            card.addEventListener('touchend', cancelPress);
+            card.addEventListener('touchmove', cancelPress);
+
+            // Mouse events for desktop
+            card.addEventListener('mousedown', startPress);
+            card.addEventListener('mouseup', cancelPress);
+            card.addEventListener('mouseleave', cancelPress);
+
+            // Click Handler
+            card.addEventListener('click', (e) => {
+                // Ignore click triggering if it was a long press action
+                if (isLongPress) {
+                    e.stopPropagation();
+                    return;
+                }
+
+                // If currently showing delete menu, handle those buttons
+                if (card.classList.contains('show-delete')) {
+                    if (e.target.classList.contains('delete-btn')) {
+                        card.remove();
+                    } else if (e.target.classList.contains('cancel-delete-btn')) {
+                        card.classList.remove('show-delete');
+                    }
+                    return;
+                }
+
+                // Open Message Modal
+                modalAuthorTitle.textContent = `${name}'s Wish`;
+                modalMessageBody.textContent = message;
+                viewModalOverlay.classList.add('active');
+            });
+
+            // Append card to grid container
+            cardsContainer.appendChild(card);
+        }
+    </script>
+</body>
+</html>
