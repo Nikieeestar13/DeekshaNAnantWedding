@@ -41,6 +41,20 @@
             align-items: center;
             padding: 60px 20px 20px 20px; /* Reduced top padding slightly to prevent overflow */
             overflow: hidden;
+            position: relative;
+        }
+
+        /* --- FLYING BUTTERFLY STYLING --- */
+        .butterfly {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 70px; /* Adjust size as needed */
+            height: auto;
+            pointer-events: none; /* Prevents butterfly from blocking user clicks */
+            z-index: 500;
+            will-change: transform;
+            transition: transform 0.1s linear;
         }
 
         /* --- SUBTITLE INSTRUCTION TEXT --- */
@@ -257,6 +271,9 @@
     </nav>
 
     <div id="home" class="main">
+        <!-- Animated Flying Butterfly -->
+        <img src="butterfly.gif" alt="Butterfly" class="butterfly" id="butterfly">
+
         <!-- Events Header Image -->
         <img src="eventstext.png" style="width: 50%; max-width: 220px;" alt="EVENTS">
 
@@ -313,7 +330,7 @@
     </div>
 
     <script>
-        // Event Data Configuration - (Customize details & Google Maps links here)
+        // Event Data Configuration
         const eventData = {
             engagement: {
                 title: "Engagement & Godh Bharai",
@@ -322,7 +339,7 @@
                 venue: "Venue: some venue in delhi",
                 desc: "Join us for an evening of joyous celebrations, ring exchange, and Godh Bharai ceremony.",
                 img: "engagement.png",
-                locationUrl: "https://maps.google.com" // Replace with your Google Maps link
+                locationUrl: "https://maps.google.com"
             },
             haldi: {
                 title: "Haldi & Mehendi",
@@ -331,7 +348,7 @@
                 venue: "Venue: Deeksha's house",
                 desc: "A bright and cheerful morning filled with turmeric blessings, henna artistry, and music.",
                 img: "haldi.png",
-                locationUrl: "https://maps.google.com" // Replace with your Google Maps link
+                locationUrl: "https://maps.google.com"
             },
             shaadi: {
                 title: "Shaadi Ceremony",
@@ -340,7 +357,7 @@
                 venue: "Venue: some venue in lucknow",
                 desc: "Celebrate the sacred wedding rituals and dinner as we unite two hearts in marriage.",
                 img: "shaadi.png",
-                locationUrl: "https://maps.google.com" // Replace with your Google Maps link
+                locationUrl: "https://maps.google.com"
             }
         };
 
@@ -348,19 +365,19 @@
         const closeModalBtn = document.getElementById('closeModal');
         const cards = document.querySelectorAll('.card');
 
-        // Function to open modal
+        // Modal triggers
         cards.forEach(card => {
             card.addEventListener('click', () => {
-                const eventKey = card.getAttribute('data-event');
-                const data = eventData[eventKey];
+                const eventType = card.getAttribute('data-event');
+                const data = eventData[eventType];
 
                 if (data) {
                     document.getElementById('modalImg').src = data.img;
-                    document.getElementById('modalDate').innerText = data.date;
-                    document.getElementById('modalTitle').innerText = data.title;
-                    document.getElementById('modalTime').innerText = data.time;
-                    document.getElementById('modalVenue').innerText = data.venue;
-                    document.getElementById('modalDesc').innerText = data.desc;
+                    document.getElementById('modalDate').textContent = data.date;
+                    document.getElementById('modalTitle').textContent = data.title;
+                    document.getElementById('modalTime').textContent = data.time;
+                    document.getElementById('modalVenue').textContent = data.venue;
+                    document.getElementById('modalDesc').textContent = data.desc;
                     document.getElementById('modalLocationBtn').href = data.locationUrl;
 
                     modal.classList.add('active');
@@ -368,16 +385,60 @@
             });
         });
 
-        // Function to close modal
         closeModalBtn.addEventListener('click', () => {
             modal.classList.remove('active');
         });
 
-        // Close modal when clicking outside card content
         modal.addEventListener('click', (e) => {
             if (e.target === modal) {
                 modal.classList.remove('active');
             }
+        });
+
+        // --- RANDOM CONTINUOUS BUTTERFLY FLIGHT SYSTEM ---
+        const butterfly = document.getElementById('butterfly');
+        let currentX = window.innerWidth / 2;
+        let currentY = window.innerHeight / 3;
+        let targetX = currentX;
+        let targetY = currentY;
+        let speed = 2.5; // Adjust movement speed
+
+        function getRandomTarget() {
+            const padding = 60; // Keep butterfly slightly inside viewport edges
+            targetX = padding + Math.random() * (window.innerWidth - padding * 2 - 70);
+            targetY = padding + Math.random() * (window.innerHeight - padding * 2 - 70);
+        }
+
+        function animateButterfly() {
+            const dx = targetX - currentX;
+            const dy = targetY - currentY;
+            const distance = Math.hypot(dx, dy);
+
+            if (distance < 20) {
+                getRandomTarget(); // Choose a new target once reached
+            } else {
+                currentX += (dx / distance) * speed;
+                currentY += (dy / distance) * speed;
+
+                // Add a gentle floating wave/wobble effect
+                const wobble = Math.sin(Date.now() / 200) * 8;
+                
+                // Horizontal flip based on movement direction (dx < 0 flies left)
+                const flip = dx < 0 ? 1 : -1;
+
+                butterfly.style.transform = `translate3d(${currentX}px, ${currentY + wobble}px, 0) scaleX(${flip})`;
+            }
+
+            requestAnimationFrame(animateButterfly);
+        }
+
+        // Initialize butterfly position and target
+        getRandomTarget();
+        animateButterfly();
+
+        // Handle browser resize gracefully
+        window.addEventListener('resize', () => {
+            getRandomTarget();
         });
     </script>
 </body>
