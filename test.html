@@ -1,1209 +1,340 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Our Wedding Invitation</title>
-    
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Alan+Sans:wght@300..900&family=Asul:wght@400;700&family=Cinzel:wght@400;600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="navbar.css">
-
-    <style>
-        :root {
-            --flap-color: #f4e8ff;
-            --left-right-flap-color: #f4e8ff;
-            --bottom-flap-color: #ead7fb;
-            --purple-bg: #411e60;
-            --accent: #b48b58;
-            --transition-speed: 2.2s; 
-            --easing: cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body, html { 
-            margin: 0; 
-            padding: 0; 
-            width: 100%; 
-            height: 100%; 
-            background-color: var(--purple-bg); 
-            -webkit-tap-highlight-color: transparent;
-            font-family: 'Asul', serif;
-        }
-
-        /* --- ENVELOPE STAGE (OVERLAY) --- */
-        .stage { 
-            width: 100vw; 
-            height: 100vh;
-            height: 100dvh;
-            perspective: 1500px; 
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 9999;
-            background-color: var(--purple-bg);
-            background-image: url('enback.webp'); 
-            background-position: center;
-            background-repeat: no-repeat;
-            background-size: contain;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: opacity 1s ease, visibility 1s ease;
-        }
-
-        .stage.hidden-envelope {
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-        }
-
-        .envelope-full {
-            position: relative; 
-            width: 80%;
-            max-width: 450px; 
-            height: 250px;
-            background-color: var(--left-right-flap-color);
-            display: flex; 
-            justify-content: center; 
-            align-items: center;
-            z-index: 10; 
-            transform-style: preserve-3d;
-            transition: all 1s var(--easing);
-            box-shadow: 5px 10px 10px rgba(0,0,0,0.3);
-            cursor: pointer;
-        }
-
-        .flap {
-            position: absolute; 
-            top: 0; 
-            width: 100%; 
-            height: 50%; 
-            background-color: var(--bottom-flap-color);
-            clip-path: polygon(0% 0%, 100% 0%, 120% 30%, 50% 100%, -40% 8%);
-            transform-origin: top; 
-            transition: transform var(--transition-speed) var(--easing), z-index 0s linear 0.5s;
-            z-index: 15;
-            filter: drop-shadow(0 8px 10px rgba(0,0,0,0.15));
-        }
-
-        .envelope-full::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 50%; height: 100%;
-            background-color: var(--left-right-flap-color);
-            clip-path: polygon(0% 0%, 100% 50%, 0% 100%);
-            z-index: 12;
-            pointer-events: none;
-            transition: opacity 0.5s ease;
-        }
-
-        .envelope-full::after {
-            content: '';
-            position: absolute;
-            top: 0; right: 0; width: 50%; height: 100%;
-            background-color: var(--left-right-flap-color);
-            clip-path: polygon(100% 0%, 0% 50%, 100% 100%);
-            z-index: 12;
-            pointer-events: none;
-            transition: opacity 0.5s ease;
-        }
-
-        .bottom-flap {
-            position: absolute;
-            bottom: 0; left: 0; width: 100%; height: 60%;
-            background-color: var(--bottom-flap-color);
-            clip-path: polygon(0% 100%, 50% 0%, 100% 100%);
-            z-index: 13;
-            pointer-events: none;
-            transition: opacity 0.5s ease;
-        }
-
-        .open .flap { transform: rotateX(155deg); z-index: 5; }
-        .open .emblem { opacity: 0; transform: translateY(-40px) scale(0.5); pointer-events: none; }
-
-        .envelope-full.open::before, 
-        .envelope-full.open::after, 
-        .envelope-full.open .bottom-flap { 
-            opacity: 0; 
-        }
-
-        .emblem {
-            position: absolute; 
-            top: calc(50% - 50px);
-            width: 80px; 
-            height: 80px;
-            background-image: url('emblem.webp'); 
-            background-repeat: no-repeat;
-            background-position: center; 
-            background-size: contain;
-            z-index: 20; 
-            transition: all 0.8s var(--easing); 
-            transform: translateZ(35px); 
-            cursor: pointer;
-        }
-
-        /* --- FIXED NAVBAR --- */
-        .navbar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            z-index: 1000;
-        }
-
-        /* --- MAIN SITE CONTAINER --- */
-        .site-container {
-            width: 100%;
-            position: relative;
-        }
-
-        section {
-            position: relative;
-            width: 100%;
-            min-height: 100vh;
-            min-height: 100dvh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding-top: 70px;
-            box-sizing: border-box;
-        }
-
-        /* --- SECTION 1: HOME --- */
-        #home {
-            background-color: var(--purple-bg);
-            background-image: url('homeback.webp');
-            background-position: center;
-            background-repeat: no-repeat;
-            background-size: cover;
-            padding: 70px 20px 30px 20px;
-        }
-
-        .bg-container {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            max-width: 450px;
-            aspect-ratio: 9 / 16; 
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .top-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1.7vh;
-            width: 100%;
-        }
-
-        .top-content img {
-            max-width: 100%;
-            max-height: 18vh;
-            height: auto;
-            object-fit: contain;
-        }
-
-        .bottom-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            width: 100%;
-            margin-top: 5px;
-        }
-
-        .welcome-text {
-            color: #f4e8ff;
-            font-size: 0.75rem;
-            font-weight: 500;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
-            margin: 0;
-            text-transform: capitalize;
-        }
-
-        .events-btn {
-            display: inline-block;
-            background-color: rgba(53, 18, 95, 0.5);
-            color: #ffffff;
-            text-decoration: none;
-            font-size: 0.85rem;
-            font-weight: 500;
-            text-transform: uppercase;
-            padding: 8px 24px;
-            border-radius: 25px;
-            border: 1px solid rgba(244, 232, 255, 0.4);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-            transition: all 0.3s ease;
-        }
-
-        .events-btn:hover, .events-btn:active {
-            background-color: rgba(155, 76, 133, 0.95);
-            transform: translateY(-2px);
-        }
-
-        .countdown-container {
-            background: rgba(230, 219, 241, 0.85);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(6px);
-            border: 1px solid rgba(244, 232, 255, 0.25);
-            border-radius: 12px;
-            padding: 10px 15px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-            text-align: center;
-            color: #641874;
-            max-width: 90%;
-            width: 260px;
-        }
-
-        .countdown-title {
-            font-size: 0.65rem;
-            text-transform: uppercase;
-            font-weight: 600;
-            margin-bottom: 6px;
-            color: #641874;
-        }
-
-        .countdown-timer {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-        }
-
-        .timer-box {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-width: 40px;
-        }
-
-        .timer-number {
-            font-size: 0.95rem;
-            font-weight: 700;
-            line-height: 1;
-        }
-
-        .timer-label {
-            font-size: 0.6rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-top: 3px;
-            opacity: 0.85;
-        }
-
-        .timer-divider {
-            font-size: 0.95rem;
-            opacity: 0.6;
-            margin-bottom: 10px;
-        }
-
-        /* --- SECTION 2: EVENTS --- */
-        #events {
-            background-image: url('enback.webp'); 
-            background-position: center;
-            background-repeat: no-repeat;
-            background-size: cover;
-            font-family: 'Cinzel', serif;
-            justify-content: space-evenly;
-            padding-bottom: 30px;
-        }
-
-        .butterfly {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 70px;
-            height: auto;
-            pointer-events: none;
-            z-index: 500;
-            will-change: transform;
-            transition: transform 0.1s linear;
-        }
-
-        .card {
-            width: 90%;
-            max-width: 450px;
-            height: 100px;
-            background: linear-gradient(135deg, rgba(255, 252, 245, 0.82), rgba(255, 248, 238, 0.65));
-            backdrop-filter: blur(6px);
-            -webkit-backdrop-filter: blur(6px);
-            border-radius: 16px;
-            border: 1px solid #e6c896;
-            box-shadow: 0 6px 20px rgba(75, 29, 82, 0.08);
-            display: flex;
-            align-items: center;
-            padding: 10px 15px;
-            overflow: hidden;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            cursor: pointer;
-        }
-
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(75, 29, 82, 0.15);
-        }
-
-        .card.reverse {
-            flex-direction: row-reverse;
-        }
-
-        .card img {
-            width: 90px;
-            height: 90px;
-            object-fit: contain;
-            flex-shrink: 0;
-        }
-
-        .card-content {
-            flex-grow: 1;
-            text-align: center;
-            padding: 0 10px;
-        }
-
-        .card-content h3 {
-            font-family: 'Montserrat', sans-serif;
-            margin: 0 0 4px 0;
-            font-size: 0.8rem;
-            font-weight: 500;
-            letter-spacing: 2px;
-            color: #1a1a1a;
-            text-transform: uppercase;
-        }
-
-        .card-content p {
-            font-family: 'Cinzel', serif;
-            margin: 0;
-            font-size: 0.95rem;
-            font-weight: 700;
-            color: #4b1d52;
-            letter-spacing: 1.5px;
-            line-height: 1.35;
-            text-transform: uppercase;
-        }
-
-        /* --- SECTION 3: GALLERY --- */
-        #gallery {
-            background-image: url('galleryback.webp');
-            background-position: center;
-            background-repeat: no-repeat;
-            background-size: cover;
-            font-family: 'Cinzel', serif;
-            justify-content: space-evenly;
-            padding-bottom: 30px;
-        }
-
-        .camera-img {
-            width: 86%; 
-            max-width: 300px; 
-        }
-
-        .upload-box {
-            background: rgba(33, 1, 64, 0.85);
-            backdrop-filter: blur(4px);
-            width: 90%;
-            max-width: 340px;
-            border-radius: 10px;
-            padding: 30px 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .upload-box-heading {
-            font-family: 'Cinzel', serif;
-            font-size: 14px;
-            letter-spacing: 1px;
-            color: #f6e6c2;
-            margin-bottom: 20px;
-            font-weight: 400;
-            text-align: center;
-        }
-
-        .upload-icon {
-            width: 90px;
-            margin-bottom: 20px;
-        }
-
-        .upload-btn {
-            background-color: #dbd2fa; 
-            color: #5c306d;
-            border: none;
-            font-family: 'Cinzel', serif;
-            font-size: 12px;
-            font-weight: bold;
-            letter-spacing: 1px;
-            padding: 12px 30px;
-            border-radius: 20px;
-            cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            text-transform: uppercase;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        /* --- SECTION 4: GUESTBOOK --- */
-        #guestbook {
-            background-image: url('enback.webp');
-            background-position: center;
-            background-repeat: no-repeat;
-            background-size: cover;
-            font-family: 'Cinzel', serif;
-            justify-content: flex-start;
-            padding-bottom: 100px;
-        }
-
-        .cards-container {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 20px;
-            width: 100%;
-            max-width: 700px;
-            margin-top: 20px;
-            padding: 0 20px;
-            justify-content: center;
-        }
-
-        @media (max-width: 600px) {
-            .cards-container {
-                gap: 12px;
-            }
-        }
-
-        .book-card {
-            position: relative;
-            width: 100%;
-            height: 180px;
-            background: linear-gradient(135deg, #4a154b 0%, #2e0c30 100%);
-            border-radius: 4px 10px 10px 4px;
-            box-shadow: 4px 6px 12px rgba(0, 0, 0, 0.4);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 12px 12px 12px 25px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            overflow: hidden;
-        }
-
-        .book-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 6px 10px 18px rgba(0, 0, 0, 0.5);
-        }
-
-        .book-card::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 16px;
-            background: linear-gradient(to right, rgba(0,0,0,0.5), rgba(0,0,0,0.1) 80%, rgba(255,255,255,0.15));
-            border-right: 2px solid rgba(212, 175, 55, 0.6);
-        }
-
-        .book-card::after {
-            content: '';
-            position: absolute;
-            right: 3px;
-            top: 5px;
-            bottom: 5px;
-            width: 5px;
-            background: repeating-linear-gradient(to bottom, #fff, #fff 2px, #ddd 3px, #ddd 4px);
-            border-radius: 0 2px 2px 0;
-        }
-
-        .book-cover-content {
-            border: 1px dashed #d4af37;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 8px;
-            text-align: center;
-            border-radius: 3px;
-            pointer-events: none;
-        }
-
-        .book-cover-content h3 {
-            margin: 0;
-            font-family: 'Cinzel', serif;
-            font-size: 16px;
-            color: #d4af37;
-            word-break: break-word;
-        }
-
-        .book-cover-content p {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 10px;
-            color: #e0e0e0;
-            margin-top: 6px;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-        }
-
-        .fab-btn {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background-color: #5b2368;
-            color: #ffffff;
-            border: none;
-            font-size: 36px;
-            line-height: 60px;
-            text-align: center;
-            cursor: pointer;
-            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
-            z-index: 100;
-            transition: transform 0.3s ease, background-color 0.3s ease;
-        }
-
-        .fab-btn:hover {
-            transform: scale(1.1);
-            background-color: #b89628;
-        }
-
-        /* --- MODAL DIALOGS --- */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(30, 10, 40, 0.7);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-            padding: 20px;
-        }
-
-        .modal-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .modal-card {
-            background: linear-gradient(135deg, rgba(255, 253, 248, 0.98), rgba(255, 246, 235, 0.95));
-            border: 3px solid #d3942b;
-            border-radius: 20px;
-            width: 90%;
-            max-width: 420px;
-            padding: 25px 20px;
-            text-align: center;
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
-            position: relative;
-            transform: scale(0.85);
-            transition: transform 0.3s ease;
-            font-family: 'Montserrat', sans-serif;
-        }
-
-        .modal-overlay.active .modal-card {
-            transform: scale(1);
-        }
-
-        .close-btn, .modal-close {
-            position: absolute;
-            top: 12px;
-            right: 18px;
-            background: transparent;
-            border: none;
-            font-size: 1.8rem;
-            color: #4b1d52;
-            cursor: pointer;
-            line-height: 1;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-            text-align: left;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-size: 14px;
-            color: #555;
-        }
-
-        .form-group input, .form-group textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-family: inherit;
-            font-size: 14px;
-        }
-
-        .form-group textarea {
-            resize: vertical;
-            height: 100px;
-        }
-
-        .submit-btn {
-            width: 100%;
-            padding: 12px;
-            background-color: #5b2368;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-family: 'Cinzel', serif;
-            font-weight: 600;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .submit-btn:hover {
-            background-color: #b89628;
-        }
-
-        .message-modal-content {
-            background: #fdfbf7;
-            border: 2px solid #d4af37;
-        }
-
-        .message-modal-body {
-            max-height: 300px;
-            overflow-y: auto;
-            margin-top: 15px;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.6);
-            border-radius: 8px;
-            line-height: 1.6;
-            color: #444;
-            white-space: pre-wrap;
-            text-align: left;
-        }
-
-        .modal-img {
-            width: 100px;
-            height: 100px;
-            object-fit: contain;
-            margin-bottom: 10px;
-        }
-
-        .modal-date {
-            font-size: 0.85rem;
-            font-weight: 600;
-            letter-spacing: 2px;
-            color: #b38744;
-            text-transform: uppercase;
-            margin-bottom: 5px;
-        }
-
-        .modal-title {
-            font-family: 'Cinzel', serif;
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #4b1d52;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            margin: 0 0 12px 0;
-        }
-
-        .modal-info {
-            font-size: 0.85rem;
-            color: #333333;
-            line-height: 1.5;
-            margin-bottom: 20px;
-        }
-
-        .btn-location {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            background: linear-gradient(135deg, #4b1d52, #6b2875);
-            color: #ffffff;
-            font-size: 0.85rem;
-            font-weight: 600;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            text-decoration: none;
-            padding: 12px 24px;
-            border-radius: 30px;
-            border: 1px solid #e6c896;
-            box-shadow: 0 4px 12px rgba(75, 29, 82, 0.3);
-            transition: all 0.3s ease;
-        }
-
-        /* --- PETAL ANIMATION --- */
-        .petal { 
-            position: fixed; 
-            top: -50px; 
-            z-index: 10000; 
-            pointer-events: none; 
-            border-radius: 150% 0 150% 0;
-            box-shadow: 0 20px 5px rgba(0,0,0,0.05);
-            opacity: 0.9;
-        }
-
-        @keyframes fall { 
-            0% { transform: translateY(0) rotate(0deg) translateX(0); opacity: 0; } 
-            10% { opacity: 1; } 
-            50% { transform: translateY(50vh) rotate(180deg) translateX(50px); }
-            100% { transform: translateY(110vh) rotate(360deg) translateX(-20px); opacity: 0; } 
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Website</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..700;1,400..700&family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --bg-main: #FAF8F5;
+      --surface: #FFFFFF;
+      --text-primary: #1A1A1A;
+      --text-secondary: #66625D;
+      --accent: #4b2107;
+      --border: #E8E4DF;
+    }
+
+    * {
+      box-sizing: border-box;
+      min-width: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      overflow-x: hidden;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-primary);
+      -webkit-tap-highlight-color: transparent;
+      overflow-x: hidden;
+      width: 100%;
+    }
+
+    h1, h2, h3, .serif {
+      font-family: 'Playfair Display', serif;
+    }
+
+    .nav-link {
+      position: relative;
+      font-weight: 500;
+      color: var(--text-secondary);
+      transition: color 0.2s ease;
+    }
+    .nav-link:hover { color: var(--text-primary); }
+
+    .icon-chip {
+      width: 2.25rem;
+      height: 2.25rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      color: var(--text-primary);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      transition: all 0.2s ease;
+      touch-action: manipulation;
+      flex-shrink: 0;
+    }
+
+    .product-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      touch-action: manipulation;
+    }
+    .product-card:active {
+      transform: scale(0.98);
+    }
+
+    .filter-btn {
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      background: var(--surface);
+      transition: all 0.2s ease;
+      touch-action: manipulation;
+      white-space: nowrap;
+    }
+    .filter-btn.active, .filter-btn:active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    .field {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      background: var(--surface);
+      color: var(--text-primary);
+      font-size: 16px;
+    }
+    .field:focus {
+      outline: none;
+      border-color: var(--text-primary);
+    }
+
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    @media (max-width: 767px) {
+      .desktop-nav { display: none !important; }
+    }
+    @media (min-width: 768px) {
+      .mobile-toggle { display: none !important; }
+      .mobile-nav { display: none !important; }
+    }
+  </style>
 </head>
-<body>
+<body class="relative min-h-screen">
 
-    <!-- Audio Element -->
-    <audio id="inviteMusic" preload="auto" playsinline>
-        <source src="song1.mp3" type="audio/mpeg">
-    </audio>
+  <!-- Background Image with object-contain to prevent zoom/crop -->
+  <div class="absolute inset-0 z-0 opacity-25 pointer-events-none flex items-center justify-center">
+    <img src="background.webp" alt="Background" class="h-full w-full object-contain">
+  </div>
 
-    <!-- ENVELOPE OPENING STAGE -->
-    <div class="stage" id="stage">
-        <div class="envelope-full" id="envelope" onclick="openInvite()" ontouchstart="openInvite()">
-            <div class="flap"></div>
-            <div class="bottom-flap"></div>
-            <div class="emblem"></div>
+  <!-- Main Content Wrapper -->
+  <div class="relative z-10 flex flex-col min-h-screen">
+    <!-- Header / Navigation Bar -->
+    <header class="sticky top-0 z-40 bg-[var(--bg-main)]/90 backdrop-blur-md border-b border-[var(--border)] px-4 lg:px-8 py-4">
+      <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+        <!-- Logo Image -->
+        <a href="#home" class="flex items-center gap-2">
+          <img src="logo.webp" alt="Logo" class="h-10 w-auto object-contain">
+        </a>
+
+        <!-- Desktop Navigation Bar -->
+        <nav class="desktop-nav flex items-center gap-8 ml-auto" aria-label="Primary navigation">
+          <a class="nav-link text-sm uppercase tracking-widest" href="#home">Home</a>
+          <a class="nav-link text-sm uppercase tracking-widest" href="#products">Products</a>
+          <a class="nav-link text-sm uppercase tracking-widest" href="#customize">Customize</a>
+        </nav>
+
+        <!-- Mobile Nav Toggle Button -->
+        <button id="menu-button" class="mobile-toggle icon-chip md:hidden" aria-expanded="false" aria-label="Toggle Menu">
+          <i data-lucide="menu" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Mobile Dropdown Navigation -->
+      <nav id="mobile-nav" class="mobile-nav hidden flex-col gap-4 pt-4 pb-2 border-t border-[var(--border)] mt-4 md:hidden">
+        <a class="mobile-nav-link nav-link text-sm uppercase tracking-widest px-2" href="#home">Home</a>
+        <a class="mobile-nav-link nav-link text-sm uppercase tracking-widest px-2" href="#products">Products</a>
+        <a class="mobile-nav-link nav-link text-sm uppercase tracking-widest px-2" href="#customize">Customize</a>
+      </nav>
+    </header>
+
+    <!-- Main Content Section -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 lg:px-8 py-8">
+      
+      <!-- Controls & Search Bar -->
+      <section id="products" class="mb-8">
+        <div class="flex flex-col md:flex-row gap-4 items-center justify-between mb-6">
+          <input type="text" id="search-input" placeholder="Search handcrafted items..." class="field max-w-md">
+          <div class="flex gap-2 overflow-x-auto w-full md:w-auto no-scrollbar pb-2 md:pb-0">
+            <button class="filter-btn px-4 py-2 rounded-full text-sm font-medium active" data-category="all">All</button>
+            <button class="filter-btn px-4 py-2 rounded-full text-sm font-medium" data-category="art">Art</button>
+            <button class="filter-btn px-4 py-2 rounded-full text-sm font-medium" data-category="crafts">Crafts</button>
+          </div>
         </div>
-    </div>
+        <p id="item-count" class="text-sm text-[var(--text-secondary)]">0 Items Displayed</p>
+      </section>
 
-    <!-- MAIN NAVBAR (Fixed Across Page) -->
-    <nav class="navbar">
-        <ul>
-            <li><a href="#home">Home</a></li>
-            <li><a href="#events">Event</a></li>
-            <li><a href="#gallery">Gallery</a></li>
-            <li><a href="#guestbook">Guestbook</a></li>
-        </ul>
-    </nav>
-
-    <!-- SCROLLABLE WEBSITE SECTIONS -->
-    <div class="site-container">
-
-        <!-- SECTION 1: HOME -->
-        <section id="home">
-            <div class="bg-container">
-                <div class="top-content">
-                    <img src="rings.webp" style="margin-top:8%; width: 10%; max-width: 100px;" alt="Rings">
-                    <img src="families.webp" style="width: 75%; max-width: 250px;" alt="Families">
-                    <img src="dna.webp" style="width: 55%; max-width: 250px;" alt="DNA">
-                    <img src="Date.webp" style="width: 70%; max-width: 320px;" alt="Date">
-                </div>
-
-                <div class="bottom-content">
-                    <div class="countdown-container">
-                        <div class="countdown-title">Until Forever Begins</div>
-                        <div class="countdown-timer">
-                            <div class="timer-box">
-                                <span id="days" class="timer-number">00</span>
-                                <span class="timer-label">Days</span>
-                            </div>
-                            <span class="timer-divider">:</span>
-                            <div class="timer-box">
-                                <span id="hours" class="timer-number">00</span>
-                                <span class="timer-label">Hours</span>
-                            </div>
-                            <span class="timer-divider">:</span>
-                            <div class="timer-box">
-                                <span id="minutes" class="timer-number">00</span>
-                                <span class="timer-label">Mins</span>
-                            </div>
-                            <span class="timer-divider">:</span>
-                            <div class="timer-box">
-                                <span id="seconds" class="timer-number">00</span>
-                                <span class="timer-label">Secs</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <a href="#events" class="events-btn">Events</a>
-                    <p class="welcome-text">We Can't Wait to See You!</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- SECTION 2: EVENTS -->
-        <section id="events">
-            <img src="butterfly.gif" alt="Butterfly" class="butterfly" id="butterfly">
-            <img src="eventstext.webp" style="width: 50%; max-width: 220px;" alt="EVENTS">
-
-            <div class="card" data-event="engagement">
-                <img src="engagement.webp" alt="Engagement">
-                <div class="card-content">
-                    <h3>8th December</h3>
-                    <p>Engagement<br>Godh Bharai</p>
-                </div>
-            </div>
-
-            <div class="card reverse" data-event="haldi">
-                <img src="haldi.webp" alt="Haldi Ceremony">
-                <div class="card-content">
-                    <h3>11th December</h3>
-                    <p>Haldi<br>Mehendi</p>
-                </div>
-            </div>
-
-            <div class="card" data-event="shaadi">
-                <img src="shaadi.webp" alt="Shaadi Ceremony">
-                <div class="card-content">
-                    <h3>12th December</h3>
-                    <p>Shaadi</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- SECTION 3: GALLERY -->
-        <section id="gallery">
-            <img src="camera.webp" class="camera-img" alt="Camera with flowers">
-
-            <div class="upload-box">
-                <h3 class="upload-box-heading">UPLOAD YOUR PHOTOS & VIDEOS</h3>
-                <img src="cloud.webp" class="upload-icon" alt="Upload cloud icon">
-                <a href="https://photos.app.goo.gl/qE7H9TP9CjBCPWB7A" target="_blank" rel="noopener noreferrer" class="upload-btn">UPLOAD</a>
-            </div>
-        </section>
-
-        <!-- SECTION 4: GUESTBOOK -->
-        <section id="guestbook">
-            <img src="guestbooktitle.webp" style="width: 86%; max-width: 300px; margin-top:20px;" alt="GUESTBOOK">
-            <div class="cards-container" id="cardsContainer"></div>
-        </section>
-
-    </div>
-
-    <!-- Floating Action Button for Guestbook -->
-    <button class="fab-btn" id="openModalBtn" aria-label="Add Wish">+</button>
-
-    <!-- EVENT MODAL -->
-    <div class="modal-overlay" id="eventModal">
-        <div class="modal-card">
-            <button class="modal-close" id="closeEventModal">&times;</button>
-            <img id="modalImg" src="" alt="Event Icon" class="modal-img">
-            <div id="modalDate" class="modal-date"></div>
-            <h2 id="modalTitle" class="modal-title"></h2>
-            <div class="modal-info">
-                <p id="modalTime"></p>
-                <p id="modalVenue"></p>
-                <p id="modalDesc"></p>
-            </div>
-            <a id="modalLocationBtn" href="#" target="_blank" class="btn-location">
-                <svg width="14" height="18" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-                </svg>
-                Location
-            </a>
+      <!-- Products Grid -->
+      <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Sample Product Card -->
+        <div class="product-card rounded-xl overflow-hidden p-4 flex flex-col justify-between" data-category="art" data-price="50">
+          <div class="relative w-full h-64 mb-4 overflow-hidden rounded-lg">
+            <img src="product-1.webp" alt="Handcrafted Art" class="w-full h-full object-contain md:object-cover">
+          </div>
+          <div>
+            <h3 class="text-xl font-semibold mb-1">Handcrafted Masterpiece</h3>
+            <p class="text-sm text-[var(--text-secondary)] mb-4">$50.00</p>
+            <button class="w-full py-2 bg-[var(--accent)] text-white rounded-lg text-sm font-medium hover:opacity-90 transition-opacity" onclick="openProductModal(['product-1.webp', 'product-1-alt1.webp', 'product-1-alt2.webp'], 'Handcrafted Masterpiece', '$50.00')">
+              View Details
+            </button>
+          </div>
         </div>
-    </div>
+      </div>
 
-    <!-- CREATE GUESTBOOK MESSAGE MODAL -->
-    <div class="modal-overlay" id="modalOverlay">
-        <div class="modal-card">
-            <button class="close-btn" id="closeModalBtn">&times;</button>
-            <h2 style="font-family:'Cinzel', serif; margin-top:0; color:#333;">Leave a Message</h2>
-            <form id="guestbookForm">
-                <div class="form-group">
-                    <label for="guestName">Your Name</label>
-                    <input type="text" id="guestName" placeholder="e.g., Jane Doe" required>
-                </div>
-                <div class="form-group">
-                    <label for="guestMessage">Your Message</label>
-                    <textarea id="guestMessage" placeholder="Write your warm wishes for the couple..." required></textarea>
-                </div>
-                <button type="submit" class="submit-btn">Submit Message</button>
-            </form>
+      <div id="no-results" class="hidden text-center py-12 text-[var(--text-secondary)]">
+        No items match your selected filters.
+      </div>
+    </main>
+
+    <!-- Product Modal -->
+    <div id="product-modal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" onclick="handleBackdropClick(event)">
+      <div class="bg-[var(--surface)] rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl border border-[var(--border)] flex flex-col">
+        <!-- Slideshow Header Container -->
+        <div class="relative h-72 bg-[var(--bg-main)] flex items-center justify-center">
+          <img id="modal-slideshow-image" src="product-1.webp" alt="Product Preview" class="max-h-full max-w-full object-contain">
+          
+          <button onclick="prevSlide()" class="absolute left-3 icon-chip shadow-md" aria-label="Previous image">
+            <i data-lucide="chevron-left" class="w-4 h-4"></i>
+          </button>
+          <button onclick="nextSlide()" class="absolute right-3 icon-chip shadow-md" aria-label="Next image">
+            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+          </button>
+          <span id="modal-slide-indicator" class="absolute bottom-3 right-3 bg-black/70 text-white text-xs px-2.5 py-1 rounded-full">1 / 3</span>
         </div>
-    </div>
 
-    <!-- VIEW GUESTBOOK MESSAGE MODAL -->
-    <div class="modal-overlay" id="viewModalOverlay">
-        <div class="modal-card message-modal-content">
-            <button class="close-btn" id="closeViewModalBtn">&times;</button>
-            <h2 id="modalAuthorTitle" style="font-family:'Cinzel', serif; margin-top:0; color:#333;">Guest's Wish</h2>
-            <div class="message-modal-body" id="modalMessageBody"></div>
+        <!-- Modal Body -->
+        <div class="p-6">
+          <h2 id="modal-title" class="text-2xl font-bold mb-2">Product Title</h2>
+          <p id="modal-price" class="text-lg text-[var(--text-secondary)] font-medium mb-6">$0.00</p>
+          
+          <div class="flex gap-4 items-center">
+            <button id="whatsapp-inquire-btn" class="flex-1 py-3 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl font-medium flex items-center justify-center gap-2 transition-colors">
+              <i data-lucide="message-circle" class="w-5 h-5"></i>
+              Inquire Now
+            </button>
+            <button onclick="closeProductModal()" class="px-5 py-3 border border-[var(--border)] rounded-xl hover:bg-gray-50 text-sm font-medium transition-colors">
+              Close
+            </button>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 
-    <!-- ENVELOPE & COUNTDOWN LOGIC -->
-    <script>
-        function openInvite() {
-            const env = document.getElementById('envelope');
-            const stage = document.getElementById('stage');
-            const audio = document.getElementById('inviteMusic');
+  <script>
+    let activeCategory = "all";
+    let currentImages = [];
+    let currentSlideIndex = 0;
 
-            if (!env.classList.contains('open')) {
-                env.classList.add('open');
-                
-                audio.currentTime = 17;
-                audio.play().catch(error => {
-                    const forcePlay = () => {
-                        audio.play();
-                        document.removeEventListener('click', forcePlay);
-                    };
-                    document.addEventListener('click', forcePlay);
-                });
+    function filterProducts() {
+      const search = document.getElementById("search-input").value.toLowerCase();
+      const cards = document.querySelectorAll(".product-card");
+      const count = document.getElementById("item-count");
+      const noResults = document.getElementById("no-results");
+      let visible = 0;
 
-                startPetals();
+      cards.forEach(card => {
+        const matchesCategory = activeCategory === "all" || card.dataset.category === activeCategory;
+        const matchesSearch = card.textContent.toLowerCase().includes(search);
+        const show = matchesCategory && matchesSearch;
 
-                // Fade out envelope after opening animation
-                setTimeout(() => {
-                    stage.classList.add('hidden-envelope');
-                }, 1800);
-            }
+        card.classList.toggle("hidden", !show);
+        if (show) visible++;
+      });
+
+      count.textContent = visible + (visible === 1 ? " Item Displayed" : " Items Displayed");
+      noResults.classList.toggle("hidden", visible !== 0);
+    }
+
+    document.querySelectorAll(".filter-btn").forEach(button => {
+      button.addEventListener("click", () => {
+        activeCategory = button.dataset.category;
+        document.querySelectorAll(".filter-btn").forEach(item => item.classList.toggle("active", item === button));
+        filterProducts();
+      });
+    });
+
+    document.getElementById("search-input").addEventListener("input", filterProducts);
+
+    const menuButton = document.getElementById("menu-button");
+    const mobileNav = document.getElementById("mobile-nav");
+
+    function toggleMobileNav() {
+      const isHidden = mobileNav.classList.toggle("hidden");
+      menuButton.setAttribute("aria-expanded", String(!isHidden));
+    }
+
+    menuButton.addEventListener("click", toggleMobileNav);
+
+    document.querySelectorAll(".mobile-nav-link").forEach(link => {
+      link.addEventListener("click", () => {
+        if (!mobileNav.classList.contains("hidden")) {
+          toggleMobileNav();
         }
+      });
+    });
 
-        function startPetals() {
-            const colors = [ '#E6E6FA', '#DCD0FF', '#BDB5D5', '#967BB6', '#7B1FA2', '#8A9A86' ];
+    function openProductModal(images, title, price) {
+      currentImages = images && images.length ? images : ['product-1.webp'];
+      currentSlideIndex = 0;
+      
+      document.getElementById('modal-title').textContent = title;
+      document.getElementById('modal-price').textContent = price;
+      
+      const whatsappBtn = document.getElementById('whatsapp-inquire-btn');
+      const message = `Hello, I am interested in inquiring about "${title}" priced at ${price}.`;
+      whatsappBtn.onclick = () => {
+        window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+      };
 
-            for (let i = 0; i < 60; i++) { 
-                setTimeout(() => {
-                    const p = document.createElement('div');
-                    p.className = 'petal';
-                    const randomColor = colors[Math.floor(Math.random() * colors.length)];
-                    p.style.backgroundColor = randomColor;
-                    const size = (Math.random() * 10 + 10) + 'px';
-                    p.style.width = size;
-                    p.style.height = size;
-                    p.style.left = Math.random() * 100 + 'vw';
-                    const duration = (Math.random() * 3 + 4) + 's';
-                    const delay = (Math.random() * 2) + 's';
-                    p.style.animation = `fall ${duration} ${delay} linear forwards`;
-                    document.body.appendChild(p);
-                    setTimeout(() => p.remove(), 8000);
-                }, i * 120);
-            }
-        }
+      updateSlideshow();
+      document.getElementById('product-modal').classList.remove('hidden');
+    }
 
-        function startCountdown() {
-            const targetDate = new Date('2026-12-12T18:00:00').getTime();
+    function closeProductModal() {
+      document.getElementById('product-modal').classList.add('hidden');
+    }
 
-            function updateTimer() {
-                const now = new Date().getTime();
-                const difference = targetDate - now;
+    function handleBackdropClick(event) {
+      if (event.target === document.getElementById('product-modal')) {
+        closeProductModal();
+      }
+    }
 
-                if (difference <= 0) {
-                    document.querySelector('.countdown-container').innerHTML = "<div class='countdown-title'>Today is the Day!</div>";
-                    return;
-                }
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeProductModal();
+      }
+    });
 
-                const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+    function updateSlideshow() {
+      const imgElement = document.getElementById('modal-slideshow-image');
+      const indicator = document.getElementById('modal-slide-indicator');
 
-                document.getElementById('days').innerText = String(days).padStart(2, '0');
-                document.getElementById('hours').innerText = String(hours).padStart(2, '0');
-                document.getElementById('minutes').innerText = String(minutes).padStart(2, '0');
-                document.getElementById('seconds').innerText = String(seconds).padStart(2, '0');
-            }
+      imgElement.src = currentImages[currentSlideIndex];
+      indicator.textContent = `${currentSlideIndex + 1} / ${currentImages.length}`;
+    }
 
-            updateTimer();
-            setInterval(updateTimer, 1000);
-        }
+    function nextSlide() {
+      currentSlideIndex = (currentSlideIndex + 1) % currentImages.length;
+      updateSlideshow();
+    }
 
-        startCountdown();
-    </script>
+    function prevSlide() {
+      currentSlideIndex = (currentSlideIndex - 1 + currentImages.length) % currentImages.length;
+      updateSlideshow();
+    }
 
-    <!-- EVENTS SECTION LOGIC -->
-    <script>
-        const eventData = {
-            engagement: {
-                title: "Engagement & Godh Bharai",
-                date: "8th December",
-                time: "Time: 10:00 AM to 5:00 PM",
-                venue: "Venue: Orriva By Awadh, Ghaziabad",
-                desc: "Join us for an evening of joyous celebrations, ring exchange, and Godh Bharai ceremony.",
-                img: "engagement.webp",
-                locationUrl: "https://maps.app.goo.gl/txZhoH37wFUkFG577?g_st=aw"
-            },
-            haldi: {
-                title: "Haldi & Mehendi",
-                date: "11th December",
-                time: "Time: 10:00 AM onwards",
-                venue: "Venue: Gupta Residence",
-                desc: "A bright and cheerful morning filled with turmeric blessings, henna artistry, and music.",
-                img: "haldi.webp",
-                locationUrl: "https://maps.app.goo.gl/yfhjGbXpCD2hWVjs5"
-            },
-            shaadi: {
-                title: "Shaadi Ceremony",
-                date: "12th December",
-                time: "Time: 7:00 PM onwards",
-                venue: "Venue: Lotus Portico, Jankipuram, Lucknow",
-                desc: "Celebrate the sacred wedding rituals and dinner as we unite two hearts in marriage.",
-                img: "shaadi.webp",
-                locationUrl: "https://maps.app.goo.gl/wJx24kRSrm7DUoUXA?g_st=aw"
-            }
-        };
-
-        const eventModal = document.getElementById('eventModal');
-        const closeEventModalBtn = document.getElementById('closeEventModal');
-        const cards = document.querySelectorAll('.card');
-
-        cards.forEach(card => {
-            card.addEventListener('click', () => {
-                const eventType = card.getAttribute('data-event');
-                const data = eventData[eventType];
-
-                if (data) {
-                    document.getElementById('modalImg').src = data.img;
-                    document.getElementById('modalDate').textContent = data.date;
-                    document.getElementById('modalTitle').textContent = data.title;
-                    document.getElementById('modalTime').textContent = data.time;
-                    document.getElementById('modalVenue').textContent = data.venue;
-                    document.getElementById('modalDesc').textContent = data.desc;
-                    document.getElementById('modalLocationBtn').href = data.locationUrl;
-
-                    eventModal.classList.add('active');
-                }
-            });
-        });
-
-        closeEventModalBtn.addEventListener('click', () => eventModal.classList.remove('active'));
-        eventModal.addEventListener('click', (e) => {
-            if (e.target === eventModal) eventModal.classList.remove('active');
-        });
-
-        // Butterfly Animation
-        const butterfly = document.getElementById('butterfly');
-        let currentX = window.innerWidth / 2;
-        let currentY = window.innerHeight / 3;
-        let targetX = currentX;
-        let targetY = currentY;
-        let speed = 2.5;
-
-        function getRandomTarget() {
-            const padding = 60;
-            targetX = padding + Math.random() * (window.innerWidth - padding * 2 - 70);
-            targetY = padding + Math.random() * (window.innerHeight - padding * 2 - 70);
-        }
-
-        function animateButterfly() {
-            const dx = targetX - currentX;
-            const dy = targetY - currentY;
-            const distance = Math.hypot(dx, dy);
-
-            if (distance < 20) {
-                getRandomTarget();
-            } else {
-                currentX += (dx / distance) * speed;
-                currentY += (dy / distance) * speed;
-                const wobble = Math.sin(Date.now() / 200) * 8;
-                const flip = dx < 0 ? 1 : -1;
-                butterfly.style.transform = `translate3d(${currentX}px, ${currentY + wobble}px, 0) scaleX(${flip})`;
-            }
-
-            requestAnimationFrame(animateButterfly);
-        }
-
-        getRandomTarget();
-        animateButterfly();
-    </script>
-
-    <!-- FIREBASE & GUESTBOOK LOGIC -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } 
-        from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyCWPng2_1o-ZlxazpYfRcZZtMXGnLh509A",
-            authDomain: "dawedding-938da.firebaseapp.com",
-            projectId: "dawedding-938da",
-            storageBucket: "dawedding-938da.firebasestorage.app",
-            messagingSenderId: "980547601139",
-            appId: "1:980547601139:web:e556c96be0c7a47b0f2d86",
-            measurementId: "G-RZ49KWR6HL"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const guestbookRef = collection(db, "guestbook");
-
-        const openModalBtn = document.getElementById('openModalBtn');
-        const closeModalBtn = document.getElementById('closeModalBtn');
-        const modalOverlay = document.getElementById('modalOverlay');
-        const guestbookForm = document.getElementById('guestbookForm');
-        const cardsContainer = document.getElementById('cardsContainer');
-
-        const viewModalOverlay = document.getElementById('viewModalOverlay');
-        const closeViewModalBtn = document.getElementById('closeViewModalBtn');
-        const modalAuthorTitle = document.getElementById('modalAuthorTitle');
-        const modalMessageBody = document.getElementById('modalMessageBody');
-
-        openModalBtn.addEventListener('click', () => modalOverlay.classList.add('active'));
-        closeModalBtn.addEventListener('click', () => modalOverlay.classList.remove('active'));
-        closeViewModalBtn.addEventListener('click', () => viewModalOverlay.classList.remove('active'));
-
-        [modalOverlay, viewModalOverlay].forEach(overlay => {
-            overlay.addEventListener('click', (e) => {
-                if (e.target === overlay) overlay.classList.remove('active');
-            });
-        });
-
-        guestbookForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const name = document.getElementById('guestName').value;
-            const message = document.getElementById('guestMessage').value;
-
-            try {
-                await addDoc(guestbookRef, {
-                    name: name,
-                    message: message,
-                    createdAt: serverTimestamp()
-                });
-                guestbookForm.reset();
-                modalOverlay.classList.remove('active');
-            } catch (err) {
-                console.error("Error saving message:", err);
-            }
-        });
-
-        const q = query(guestbookRef, orderBy("createdAt", "desc"));
-        onSnapshot(q, (snapshot) => {
-            cardsContainer.innerHTML = "";
-            snapshot.forEach((docSnap) => {
-                const data = docSnap.data();
-                createBookCard(data.name, data.message);
-            });
-        });
-
-        function createBookCard(name, message) {
-            const card = document.createElement('div');
-            card.classList.add('book-card');
-            card.innerHTML = `
-                <div class="book-cover-content">
-                    <h3>${name}</h3>
-                    <p>Tap to Open</p>
-                </div>
-            `;
-            card.addEventListener('click', () => {
-                modalAuthorTitle.textContent = `${name}'s Wish`;
-                modalMessageBody.textContent = message;
-                viewModalOverlay.classList.add('active');
-            });
-            cardsContainer.appendChild(card);
-        }
-    </script>
+    document.addEventListener("DOMContentLoaded", () => {
+      if (window.lucide) lucide.createIcons();
+      filterProducts();
+    });
+  </script>
 </body>
 </html>
